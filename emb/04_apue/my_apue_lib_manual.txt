@@ -1,0 +1,840 @@
+
+date01
+	func:open(2)
+
+	func:read(2)
+
+	func:write(2)
+
+	func:lseek(2)
+
+	func:close(2)
+
+	func:dup(2)
+
+	func:dup2(2)
+
+	func:creat(2)
+
+	func:sync(2)
+
+	func:fsync(2)
+
+	func:fdatasync(2)
+
+	func:fcntl(2)
+
+	ioctl(2)
+
+
+date02
+	func:fopen(3)
+		#include <stdio.h>
+		FILE *fopen(const char *path,const char *mode);
+
+		简介：
+
+		返回直：
+		失败返回NULL，errno被设置。
+
+	func:fflush(3)
+		#include <stdio.h>
+		int fflush(FILE *stream);
+		简介：
+		如果stream是一个输出流，该函数会强制的把其缓存区的内容写入stream
+		中，如果stream为NULL，则刷新所有输出流。如果成功则返回0,失败则反
+		回EOF这个宏，errno会被重设。
+
+	func:gets(3)
+		#include <stdio.h>
+		char *gets(char *s);
+
+		简介：
+		从标准输入中读取一行字符串包含空格，回添到*s，返回值这个*s的地址
+		,失败返回NULL。
+
+	func:puts(3)
+		#include <stdio.h>
+		int puts(const char *s);
+		
+		简介：
+		将字符串*s写如到标准输出，并换行。成功返回一个非负的数字，失败返
+		回EOF。
+
+	func:fgets(3)
+		#include <stdio.h>
+		char *fgets(char *s, int size, FILE *stream);
+
+		简介：
+		最多从*stream中读取size-1个字符，存储到*s的缓存区中。当遇到EOF或
+		者是换行时结束。读完后会在*s中存一个'\0'。成功返回指向*s的指针，
+		失败或者对完了返回NULL。
+
+	func:fputs(3)
+	
+	func:getline(3)
+
+	func:fgetc(3)
+
+	func:fputc(3)
+
+	func:getchar(3)
+
+	func:putchar(3)
+
+	func:putc(3)
+
+	func:getc(3)
+
+	func:fread(3)
+
+	func:fwrite(3)
+
+	func:fscanf(3)
+
+	func:fprintf(3)
+
+	func:ferror(3)
+		#include <stdio.h>
+		int ferror(FILE *stream);
+		
+		简介：
+		该函数返回的是*stream的文件的错误标志。如果有该标志，则返回一个非
+		0的数。
+
+	func:feof(3)
+		#include <stdio.h>
+		int feof(FILE *stream)
+		
+		简介：
+		该函数返回的是*stream的文件结束标志。如果是文件结束位置，返回的是
+		一个非0的数。
+
+	func:perror(3)
+		#include <stdio.h>
+		void perror(const char *s);
+
+		简介：
+		该函数会打印当前代码位置之前的最后一个由于系统调用或库调用所产生
+		的错误的错误信息。*s是一个提示字符串，错误信息加空格后打印在该字
+		符串后。
+
+	func:fseek(3)
+		#include <stdio.h>
+		int fseek(FILE *stream, long offset, int whence);
+
+		简介：
+		该函数用于设置文件流*stream的当前的positon。whence代表相对的位置
+		offset代表偏移多少。成功返回0,使用ftell（）可以确定当前文件流的位
+		置，错误返回-1,errno重设。
+
+	func:fclose(3)
+		#include <stdio.h>
+		int fclose(FILE *stream);
+
+		简介：
+		关闭一个已经打开的文件流，成功则返回0,不成功返回EOF，errno重设。
+
+	func:tmpfile(3)
+		#include <stdio.h>
+		FILE *tmpfile(void);
+		
+		简介：
+		该函数将以w+b模式打开一个文件，并返回该文件流。当要关闭该文件流时
+		这个文件将会被自动删除。
+
+	func:fdopen(3)
+		#include <stdio.h>
+		FILE *fdopen(int fd, const char *mode);
+
+		简介：
+		通过一个文件描述符fd，打开一个文件流并返回。*mode代表的是打开方式
+		。失败返回NULL，errno重置。
+
+
+	func:fileno(3)
+		#include <stdio.h>
+		int fileno(FILE *stream);
+
+		简介：
+		该函数会根据文件流*stream返回该函数的文件描述符。
+
+date03
+	func:stat(2) fstat(2) lstat(2)
+		#include <sys/types.h>
+		#include <sys/stat.h>
+		#include <unistd.h>
+		int stat(const char *pathname, struct stat *buf);
+		int fstaat(int fd, struct stat *buf);
+		int lstat(const char *pathname, struct stat *buf);
+		
+		简介：
+		三个函数的作用都是读取pathname或者是一个已经打开的文件的fd所代表
+		的文件的一些描述信息，并把这些信息存储在一个结构体 *buf中。与st-
+		at不同的是，fstat要读取的文件必须是打开的，通过整个文件的文件描
+		述符去读取。lstat与stat的区别是：如果分析的文件是一个符号链接文
+		件，lstat分析的是这个符号链接文件本身的信息，而stat读取的是符号
+		链接所指向的那个文件。
+
+		参数：
+		*buf所代表的结构体struct stat 成员如下：
+		struct stat {
+			dev_t     st_dev;         /* ID of device containing file */
+			ino_t     st_ino;         /* inode number */
+			mode_t    st_mode;        /* protection */
+			nlink_t   st_nlink;       /* number of hard links */
+			uid_t     st_uid;         /* user ID of owner */
+			gid_t     st_gid;         /* group ID of owner */
+			dev_t     st_rdev;        /* device ID (if special file) */
+			off_t     st_size;        /* total size, in bytes */
+			blksize_t st_blksize;     /* blocksize for filesystem I/O */
+			blkcnt_t  st_blocks;      /* number of 512B blocks 
+										 allocated */
+
+			/* Since Linux 2.6, the kernel supports nanosecond
+			   precision for the following timestamp fields.
+			   For the details before Linux 2.6, see NOTES. */
+
+			struct timespec st_atim;  /* time of last access */
+			struct timespec st_mtim;  /* time of last modification */
+			struct timespec st_ctim;  /* time of last status change */
+
+			#define st_atime st_atim.tv_sec      
+								    	/* Backward compatibility */
+			#define st_mtime st_mtim.tv_sec
+			#define st_ctime st_ctim.tv_sec
+		};
+	
+		返回直：
+		成功返回0,失败返回-1。errno被设置。
+
+	
+	func:getpwuid(3) getpwnam(3)
+		#include <sys/types.h>
+		#include <pwe.h>
+		struct passwd *getpwnam(const char *name);
+		struct passwd *getpwuid(uid_t uid);
+
+		简介：
+		两个函数都作用相同，通过用户的名字*name或者用户的uid，去/etc/pa-
+		sswd文件中寻找与之相对应的信息，并且会开劈一个静态结构体存储这些
+		信息，结果返回一个结构体指针，指向这些存储信息。
+
+		参数：
+		结构体 struct passwd的成员：
+		struct passwd {
+			char   *pw_name;       /* username */
+			char   *pw_passwd;     /* user password */
+			uid_t   pw_uid;        /* user ID */
+			gid_t   pw_gid;        /* group ID */
+			char   *pw_gecos;      /* user information */
+			char   *pw_dir;        /* home directory */
+			char   *pw_shell;      /* shell program */
+		};
+		
+		返回直：
+		成功返回一个指向struct passwd静态区的指针，失败或者没有找到返回
+		NULL，失败errno会诚信设置。如果要判断到底是出错还是没有找到调用
+		前要将errno赋值为0,调用后检查。
+
+
+	func:getgrgid(3) getgrnam(3)
+		#include <sys/types.h>
+		#include <grp.h>
+		struct group *getgrname(const char *name);
+		struct group *getgrgid(gid_t gid);
+
+		简介：
+		功能与getpwuid(3) getpwnam(3)类似。不同的是组函数的作用是从/etc-
+		/group中查询用户组的信息。struct group结构体成员如下：
+		struct group {
+			char   *gr_name;        /* group name */
+			char   *gr_passwd;      /* group password */
+			gid_t   gr_gid;         /* group ID */
+			char  **gr_mem;         /* NULL-terminated array of pointers
+									   to names of group members */
+		};
+
+	func:getspnam(3)
+		#include <shadow.h>
+		struct spwd *getspanm(const char *name);
+
+		简介：
+		该函数被调用后会在/etc/shadow中寻找与用户名*name相匹配的用户密
+		码信息，如果找到，返回一个指向静态的结构体的 structspwd的指针。
+		失败或者找不到的话返回NULL，出错时errno会被设置，所以要判断到底
+		是没找到还是出错需要提前将errno设置为0。
+
+	func:crypt(3)
+		#define _XOPEN_SOURCE
+		#include <unistd.h>
+		char *crypt(const char *key, const char *salt);
+		link with -lcrypt.
+
+		简介：
+		这个函数的功能是根据用户输入的密码 *key和指定的盐值*salt，haxi生
+		成一个加密后的字符串。结果是返回一个指针，指向生成后的加密字符串
+		，如果函数失败返回直为NULL。*salt盐值包含两部分可以理解为/etc/s-
+		hadow中加密字符串的前两个被$区分出来的字符串。
+
+
+	func:getpass(3)
+		#include <unistd.h>
+		char *getpas(const char *prompt);
+		
+		简介：
+		这是一个被淘汰的函数，不要用，使用ECHO参数的termios(3)可以代替他
+		。这个函数的作用是从标准输入读取一行字符串，但不回显。如果调用成
+		功，返回一个指向静态存储输入字符串的指针，失败则返回0。参数*pro-
+		mpt是一段字符串，打印在标准输出上作为下一刻要读取标准输入的提示
+		字符。
+
+	func:time(2)
+		#include <time.h>
+		time_t time(time_t *tloc);
+		
+		简介：
+		该函数的作用是返回一个代表从1970-01-01 00:00:00到当前时刻的秒数
+		。tloc可以是NULL，如果不是，这个描述会回添到*tloc中。函数调用失
+		败返回-1,errno被设置。
+
+
+	func:localtime(3)
+		#include <time.h>
+		struct tm *localtime(const time_t *timep);
+
+		简介：
+		该函数被调用时会根据一个从1970-01-01 00:00:00到某一时刻的秒数，
+		计算该时刻的本地时间的信息，并且存储到一个静态的结构体struct tm
+		中，返回一个指针指向这个结构体。失败会返回NULL。strut tm结构体的
+		成员如下：
+		struct tm {
+			int tm_sec;    /* Seconds (0-60) */
+			int tm_min;    /* Minutes (0-59) */
+			int tm_hour;   /* Hours (0-23) */
+			int tm_mday;   /* Day of the month (1-31) */
+			int tm_mon;    /* Month (0-11) */
+			int tm_year;   /* Year - 1900 */
+			int tm_wday;   /* Day of the week (0-6, Sunday = 0) */
+			int tm_yday;   /* Day in the year (0-365, 1 Jan = 0) */
+			int tm_isdst;  /* Daylight saving time */
+		};
+
+
+	func:mktime(3)
+		#include <time>
+		time_t mktime(struct tm *tm);
+
+		简介：
+		该函数的作用是根据，一个*tm代表时间信息的结构体，返回这个结构体
+		代表的时刻到1970-01-01 00:00:00的秒数。失败返回-1。
+
+	func:strftime(3)
+		#include <time.h>
+		size_t strftime(char *s, size_t max, const char *format,
+						const struct tm *tm);
+
+		简介：
+		该函数的作用是将从存储时间信息的结构体*tm中的信息，按照格式化字
+		符串*format规定的格式，回添到具有max大小的缓存去*s中。如果max足
+		够大的容纳回添结果（包含\0）返回直是回添字节个数。如果不足够容纳
+		返回直是0。
+
+	func:opendir(3)
+		#include <sys/types.h>
+		#include <dirent.h>
+		DIR *opendir(const char *name);
+
+		简介：
+		该函数的作用是根据*name打开一个目录，返回一个DIR类的指针。失败返
+		回NULL，errno被重置。
+
+	func:readdir(3)
+		#include <dirent.h>
+		struct diren *readdir(DIR *dirp);
+
+		简介：
+		根据DIR *dirp去读取一个路径，跟读文件类似。读取结果存储在静态区的
+		struct dirent结构体中，返回一个指针指向这个结构体,失败返回NULL。
+		struct dirent的成员如下：
+		struct dirent {
+			ino_t          d_ino;       /* inode number */
+			off_t          d_off;       /* not an offset; see NOTES */
+			unsigned short d_reclen;    /* length of this record */
+			unsigned char  d_type;      /* type of file; not supported
+										   by all filesystem types */
+			char           d_name[256]; /* filename */
+		};
+
+
+	func:closedir(3)
+		#include <sys/types.h>
+		#include <dirent.h>
+		int closedir(DIR *dirp);
+
+		简介：
+		根据*dirp关闭一个路径流，成功返回0,失败返回-1,并且设置errno。
+
+	func:glob(3)
+		#include <glob.h>
+		int glob(const char *pattern, int flags,
+				int (*errfunc)(const char *epath, int errno),
+				glob_t *pglob);
+		void globfree(glob_t *pglob);
+
+		简介：
+		glob函数会根据字符串*pattern的内容在所有路径中查找和他相匹配的项
+		的文件路径（包括名字）并存储到一个结构体*pglob中。如果想模糊查找
+		*pattern的最后一个字符用'*',此外要匹配的字符中不能有波浪线。搜索
+		的路径中也不包含隐藏文件，如果要搜索要以'.'开头。
+		
+		参数：
+		flags是一些特殊功能的选项，选怎特定的宏，功能不同，详细的查看man
+		手册。glob_t的结构体中，有三个成员，第一个是符合匹配项的数目，第
+		二个存储的是匹配项字符串的一个指针，存放这些字符串的空间，应该是
+		glob函数开辟的所以最后，要通过globfree释放。
+
+		返回直：
+		如果成功返回0,如果不成功可能会返回三个宏，代表不同的作用。参数er-
+		rfunc是一个自定义的函数指针，当glob出错时会自动调用这个函数，一般
+		不用设置为NULL即可，如果用记得该错误处理函数定义时成功状态要返回0
+		。
+
+date04
+	func:getopt(3)
+
+		#inlcude <unistd.h>
+		int getopt(int argc, char * const argv[], const char *optstring);
+		extern char *optarg;
+		extern int optind, opterr,optot;
+	
+		简介：
+		该函数每次被调用时会根据选项字符串optstring,检查命令行参数的第op-
+		tind(ps:初始值是1,即从第二个命令行参数开始)个参数开始解析其是否是
+		optstring中规定的选项字符，如果是则分析该选项的参数情况。四个全局
+		变量，optarg存储该次解析的选项字符的参数的值，optind指定了本次解
+		析第几个命令行参数（初次调用是1,以后会自加），opterr如果是1,那么
+		本次解析如果不符合optstring的要求则会打印出错误信息，如果解析到的
+		不是optstring中的选项字符，该字符ascii码会存储在optot中。
+
+		形参：
+		optstring——"-ab:c::" "-"代表可以解析不带选项的参数，"a"参数后不加
+		冒代表只有选项a没有参数，"b:"加一个冒号表示必须加一个参数，参数和
+		选项可以加空格也可以不加空格，"c::"加两个冒号表示可以加参数也可以
+		不加参数,但是参数必须紧跟选项不能加空格。
+
+		返回值：
+		如果本次解析到了optstring中的选项字符，则返回该字符的asscii码。
+
+	func:getoptlong(3)
+		#include <getopt.h>
+		int getopt_long(int argc, char * const argv[],
+					const char *optstring,
+					const struct optin *longopts, int *longindex);
+
+		简介：该函数的功能是getopt的增强版，getopt能解析的选项只能是单个
+		字符,getoptlong 可以解析以字符串为整体的选项(--option),前三个参
+		数的用法不变，如果只想解析长选项，optstring = "",longopts
+	
+	func:strftime
+
+date05
+	
+	func:exit(3)
+		#include <stdlib.h>
+		void exit(int status);
+
+		简介：
+		该函数可以以正常的方式从此位置结束当前的进程，并且调用atexit所指
+		向的处理函数，而且能够自动的处理IO缓存区(和return一样)，最后返回
+		status & 0377(即返	回的是status的低八位)。
+
+		形参：
+		status——c标准中有两个宏（EXIT_SUCCESS \ EXIT_FAILURE）可以作为该
+		形参的直，分别代表成功与失败。
+
+	func:_exit(2) _Exit(2)
+		#include <unistd.h>
+		void _exit(int status);
+		#include <stdlib.h>
+		void _Exit(int status);
+
+		简介：
+		两函数的功能一样，都是立即结束当前调用的进程，关闭该进程已经打开
+		的文件描述符，该进程的子进程会被进程1接管，status作为一个返回状态
+		给该进程的双亲进程。该函数的功能与exit()的不同是，调用该函数后程
+		直接就被内核接管了，而exit()还会调用atexit，清理IO缓存。
+	
+	func:pthread_exit(3)
+		#include <pthread.h>
+		void pthread_exit(void *retval);
+
+		简介：
+		该函数会结束会结束当前的线程，如果这个线程来源与joinable形式，*-
+		retval中的直将会返回，这个函数同样对同一个进程中被pthread_join生
+		成的线程有效。
+
+	func:abort(3)
+		#include <stdlib.h>
+		void abort(void);
+		
+		简介：
+		异常的结束当前的进程，兵器不会有返回直。
+		
+	func:atexit(3)
+		#include <stdlib.h>
+		int atexit(void (*function)(void));
+		
+		简介：
+		当一个进程正常的结束，或者通过exit(3)\retrun结束时，该函数会被自
+		动调用，并且会调用指针function所指向的函数。
+
+		返回值：
+		成功返回0,失败返回非0。
+
+	func:getenv(3)
+		#include <stdlib.h>
+		char *getenv(const char *name);
+
+		简介：
+		该函数在环境变量的列表中寻找名字为*name的环境变量，如果找到了返回
+		指向该直字符串的指针，如果找不到匹配的，返回NULL。没有失败的解释
+		。
+
+	func:putenv(3)
+		#include <stdlib.h>
+		int putenv(char *string);
+
+		简介：
+		该函数的公功能是添加或者改变一个环境变量的直（如果该环境变量的
+		name已经存在）,环境变量的name和value存储在*string中。这个字符串
+		的格式必须为“name=value”。
+
+		返回值：
+		成功返回0,失败返回非零的数。errno会被设置。
+
+	func:setenv(3)
+		#include <stdlib.h>
+		int setenv(const char *name, const char *value,int overwrite);
+
+		简介：
+		该函数的作用是添加一个环境变量的名字name，并且复制为value。如果
+		这个环境变量已经存在，并且overwrite不为0,value会替换原来的名字。
+		如果overwrite为0,则不会改变原来环境变量的直，并且会返回一个成功
+		状态。
+		返回值：
+		成功返回0,失败返回-1。errno会被设置。
+
+		
+	func:setjmp(3) longjmp(3)
+		#include <setjmp.h>
+		int setjmp(jmp_buf env);
+		
+		#include <setjmp.h>
+		void longjmp(jmp_buf env, int val);
+
+		简介：
+		两个函数是相互配合使用的，两个函数可以实现在两个函数或者两个.c文
+		件之间的goto操作。当首次调用setjmp时，setjmp函数将此位置的信息存
+		储在一个自己定义的全局变量env中，此时setjmp的返回直是0。当有调用
+		longjmp时，longjmp函数会自动的分析全局变量env中的信息，然后程序自
+		动跳转到，setjmp初次调用的位置运行。并且longjmp会将val传回第二次
+		调用的setjmp函数中，这个val将作为第二次setjmp的返回直。
+		
+
+	func:fork(2)
+		#include <unistd.h>
+		pid_t fork(void);
+
+		简介：
+		该函数的作用是复制当前进程（完全生成令一套的虚拟内存），新的进程
+		作为当前进程的子进程，父子进程具有相同的页表、进程表项、标准io缓
+		存，但是pid、ppid、资源使用量不相同。注意的是虽然具有相同的页表，
+		但是“写时复制”。
+
+		返回直：
+		当前进程中的返回直是子进程的pid，子进程中的返回直是0。失败时，zi
+		进程不会产生，parent进程中返回直为-1,errno会被重设置。
+
+	func:getpid(2) getppid(2)
+		#include <sys/types.h>
+		#include <unistd.h>
+		pid_t getpid(void);
+		pid_t getppid(void);
+		
+		简介：
+		两个函数的功能分别是获得当前进程的pid和获得当前进程的parent进程，
+		这两个函数被调用后不会失败。
+
+
+	func:wait(2) waitpid(2)
+		#include <sys/types.h>	
+		#inlcude <sys/wait.h>
+		pid_t wait(int *status);
+		pid_t waitpid(pid_t pid, int *status, int options);
+
+		简介：
+		wait——当前进程中的各个子进程当发生改变时(包含子进程结束，子进程被
+				信号stop，子进程被信号resumed)，wait函数会被调用。
+
+		参数：
+		wait——子函数发生改变的状态会以一个整数的形式存在*status中，查询这
+			  个整数应该使用man手册中的宏函数去查看，详情产看man手册。
+		
+		返回直：
+		函数成功返回，发生改变的进程的pid号，失败返回-1,errno重置。
+			
+	func:execl(3)
+		#include <unistd.h>
+		extern char **environ;
+		int execl(const char *path, const char *arg, ...
+						/*(char *) NULL*/);
+
+		int execvp(const char *file, char *const argv[]);
+
+		简介：
+		这两个函数的作用是调佣另一个进程的代码，将当前的进程完全替换并执
+		行。
+
+		参数：
+		execl ——*path是将要调佣的进程的路径(包涵代码), *arg中存储的是被调
+				用的进程执行时可使用的选项，这个选项可以是多个。
+		execvp——*file中是将要调用的进程的可执行文件的名字，至于文件的路径
+				将会自动的在环境变量中寻找，argv是一个二级的指针，指向的
+				是存储在一个数组中的各个字符串，这些字符串是将要被调用进
+				程的的选项，不用指定选项个数，最后一个指向的是NULL。注意
+				这个字符串数组中，第一个应该是要被调用的可执行文件的名字
+				。
+		
+		返回直：
+		这个函数不会有返回直，因为成功了，原来的进程就被替换了。如果这个
+		函数没有成功将会返回-1,并且会设置errno。
+
+		注意：
+		可执行程序重写的是text, data, bss, and stack这些，该进程还是那个进程
+		pid号没有变化，也就是进程表项没有改变。
+
+date06
+	func:vfork(2)
+		#include <sys/types.h>
+		#include <unistd.h>
+		pid_t vfork(void);
+
+		简介：
+		父子进程数据段共享,因为页表不复制共同用同一个页表
+		*用_exit _Exit
+		*其中一个建议要使用exec
+		阻塞
+		过时的函数
+
+	*func:waitpid(3)
+
+	func:getpgid(2)
+
+	func:system(3)
+
+	func:acct(2)
+
+	func:getlogin()
+
+	func:setsid(2)
+		#include <unistd.h>
+		pid_t setsid(void);
+
+		简介：
+		如果当前进程不是一个进程组的leader，调用该函数时，将会创建一个新
+		的会话，当前进程是这个新的会话的唯一一个进程，也是会话leader和进
+		程组leader。新创建的会话没有控制终端。如果成功，新会话的id将会返
+		回，失败返回-1,设置errno。
+
+
+	func:umask(2)	
+		#include <sys/types.h>
+		#include <sys/stat.h>
+		mode_t umask(mode_t mask);
+		
+		简介;
+		该函数的作用是改变当前进程的umask直（当该进程创建文件时会用到）为
+		mask&0777(取低九位）。该函数一定会成功，返回直是之前设立的umask直
+		。
+
+	func:chdir()
+		#include <unistd.h>
+		int chdir(const char *path);
+
+		简介：
+		该函数的作用是改变当前进程的工作路径到path，成功返回0,失败返回-1,
+		设置erno。
+
+	func:daemon(3)
+		#include <unistd.h>
+		int daemon(int nochdir,int noclose);
+
+		简介：
+		将当前进程转换为一个守护进程，当前进程必须是由另一个进程创建的子
+		进程，原父进程应该使用_exit结束。nochdir为0代表改变当前进程的工作
+		路径改为/，不为0代表不改变。noclose为0代表将当前进程的标准输入、
+		标准输出、标准错误重定向进/dev/null，不为0代表不变。
+
+	func:strerror(3)
+		#include <string.h>
+		char *strerror(int errnum);
+
+		简介：
+		创建一个静态区，用来存储errnum所代表的错误信息的字符串，返回直指
+		向这个字符串。
+
+	func:openlog()
+		#include <sysylog.h>
+		void openlong(const char &ident,int option, int facility);
+
+		简介：
+		这个函数的作用是建立一个和系统日志文件的链接关系，参数ident代表着
+		在日志文件中每条日之前添加的提示信息，如果设置成NULL，则会自动添
+		加成拥有者的名字。optinon和faciltty代表着一些操作选项，前者代表如
+		何操作，后者代表信息类型，详细说明参考man手册。
+
+	func:syslog()
+		#include <syslong.h>
+		void syslog(int priority, const char *format, ...);
+
+		简介：
+		这个函数的作用是向系统日志文件中添加日志信息，priority这个选项是
+		facility（消息的类别）类的宏和level（消息的重要性）类的宏的位或运
+		算，format是信息的格式化字符串，使用方法和printf类似。特别的是"%m
+		"和("%s",strerror(errno)效果一样)。格式化字符不用写\n,写了就输入
+		一个\n不是换行。
+
+	func:closelog(3)
+		#include <syslog.h>
+		void closelog(void);
+
+		简介：
+		关闭指向系统日志的文件描述符号，该函数可以不调用。
+
+	func:flock(2)
+		#include <sys/file.h>
+		int flock(int fd,int operation);
+
+		简介：
+		为fd指向的文件进行锁操作，operation有对应的宏代表着不同的操作，L-
+		OCK_SH代表加一个共享锁;LOCK_EX代表加一个独立的阻塞的锁（如果想要
+		加一个非阻塞的锁与宏LOCK_NB进行位或运算）;LOCK_UN代表解锁。
+
+		返回直：
+		成功返回0,失败返回-1,设置errno。
+
+	func:lockf(3)
+		#include <unistd.h>
+		int lockf(int fd ,int cmd, off_t len);
+
+		简介：
+		这个函数用于对一个已经打开的可以写的文件fd中指定的内容段（按位）
+		进行锁操作。具体的操作通过cmd的宏确定。要操作的内容通过参数len指
+		定，如果len是正数操作的内容是当前positon~pso+len-1,如果len是负数
+		操作的内容是pos-len~pso-1,如果len是0,代表从当前位置到永远的文件末
+		尾的内容（即使文件大小有改变）。
+		
+		参数：
+		选项cmd可选的宏有：
+		F_LOCK ——设置一个独立的锁，去锁定指定的为难间，如果该文件已经被加
+				 锁了，则会阻塞等待这个锁释放。当关闭了文件后该文件的锁也
+				 会被自动释放，子进程是不会继承锁的。
+		F_TLOCK——不阻塞的锁，如果试图要枷锁的文件已经锁了，马上返回一个错
+				 误。
+		F_ULOCK——解锁
+		F_TEST ——测试锁，如果指定文件中的指定内容没有被锁或者是被当前文件
+				 锁住了，返回0.如过是被另一个进程锁住了返回-1。
+
+		返回直：
+		成功返回直，失败返回-1,设置errno。
+		
+
+	func:ftruncate(2)
+		#include <unistd.h>
+		#include <sys/types.h>
+		int ftruncate(int fd, off_t length)
+	
+		简介：
+		该函数的作用是将一个打开的能写的普通文件fd，截断到指定长度length
+		；如果文件的实际大小要不length小，则该文件将一'\0'补全；该函数不
+		改变文件当前的position。
+
+		返回直：
+		成功返回0,失败返回-1,errno设置。
+
+
+date07
+	func:signal(2)
+
+	func:pause(2)
+
+	func:sigsuspend(2)
+
+	func:kill(2)
+
+	func:raise(2)
+
+	func:alarm(2)
+
+date08
+	func:sigemptyset(3)
+
+	func:sigfillset(3)
+
+	func:sigaddset(3)
+
+	func:sigdelset(3)
+
+	func:sigismember(3)
+
+	func:sigprocmask(3)
+
+	func:sigsuspend(3)
+
+	func:sigaction(2)
+		SIG_NOCLDWAIT
+	
+	func:setitimer(2)
+
+	func:sleep(3)
+	不要同时出现alarm()hesetitimer()
+
+	func:system(3)
+		SIGCHLD--->block
+		SIGINI SIGQUIT --->
+	func:sigqueue(3)
+
+	fucn:raise(3)
+
+date09
+	func:pipe() pipe2()
+	
+	func:mkfifo(3)
+
+	func:msgget(3)
+
+	func:ftok(3)
+
+	func:msgsnd(3)
+
+	func:msgrcv(3)
+
+	func:msgctl()
+	
+	func:strstr(3)
+
+date10
+	man 7 prhreads
+
+	func:pthread_create(3)
+
+	
+
+
+
+
+
+
+
+	
