@@ -574,8 +574,8 @@ date05
 		pid_t waitpid(pid_t pid, int *status, int options);
 
 		简介：
-		wait——当前进程中的各个子进程当发生改变时(包含子进程结束，子进程被
-				信号stop，子进程被信号resumed)，wait函数会被调用。
+		wait——当前进程中的各个子进程当有发生结束的状态改变时，wait函数会
+		返回，否则会阻塞等带，知道有子进程状态发生改变。
 
 		参数：
 		wait——子函数发生改变的状态会以一个整数的形式存在*status中，查询这
@@ -611,8 +611,8 @@ date05
 		函数没有成功将会返回-1,并且会设置errno。
 
 		注意：
-		可执行程序重写的是text, data, bss, and stack这些，该进程还是那个进程
-		pid号没有变化，也就是进程表项没有改变。
+		可执行程序重写的是text, data, bss, and stack这些，该进程还是那个
+		进程pid号没有变化，也就是进程表项没有改变。
 
 date06
 	func:vfork(2)
@@ -627,15 +627,63 @@ date06
 		阻塞
 		过时的函数
 
-	*func:waitpid(3)
+	^func:waitpid(3)
+		#include <sys/tyepes.h
+		#include <sys/wait.h>
+		pid_t waitpid(pid_t pid,int *status, int options);
 
-	func:getpgid(2)
+		简介：
+		该函数会等待pid_t指定的子进程的状态（被option指定的状态）发生改变
+		时才会返回，不然会一直等待。*status用于存放状态改变的信息。函数反
+		回是状态改变的那个进程的pid号。
+
+		参数：
+		pid的直，< -1,等待的是进程组号为|pid|的子进程; -1,等待所有子进程;
+		0等待和调用进程同一组的所有子进程. > 0,等待pid号的子进程。
+		optons有三个宏选项，WNOHANG，立即返回，就是在这一时刻看看有没有进
+		成发生改变；WUNTRACED，如果改变的方式是进程被信号stop也返回；WCO-
+		NTINUED，如果改变的方式是进程被信号resumed也返回。
+		status，也可以是NULL，如过不是在产看到底是什么信息时，使用宏函数
+		，具体查看手册。
+
+
+	func:getpgid(2) 
+		#include <unistd.h>
+		ptd_t getpgid(pid_t pid);
+
+		简介：
+		获取进程pid所属的进程组的id，如果pid的直为0,就是获取当前进程的组
+		的id，成功返回对应的进程组的id，失败返回-1,设置errno。
 
 	func:system(3)
+		#include <stdlib.h>	
+		int system(const char *command);
 
-	func:acct(2)
+		简介：
+		该函数的作用是床见一个子进程，在该子进程中执行本地的shell程序去之
+		执行command所执行的命令，相当于“execl("/bin/sh", "sh", "-c", com-
+		mand, NULL);”.如果哦command为NULL，返回值代表该sh是否存在。如果
+		所有都是成功的返回直是command执行的程序的返回状态。这个状态的信息
+		要用waitpid（）中的宏函数去查看。
 
-	func:getlogin()
+	fun:acct(2)
+		#include <unistd.h>
+		int acct(const char *filename);
+
+		简介：
+		这个函数的功能是开启或关闭程序会计功能（一种对程序的记录功能），
+		*filename必须是一个真是存在的文件。当任意进程结束时，会在*filena-
+		me中追加一些记录。如果filename不是NULL代表打开进程会计功能，如果
+		取NULL代表关闭会计功能。成功返回0,失败返回-1,errno被设置。
+
+
+	func:getlogin(3)
+		#include <unistd.h>
+		char *getlogin(void);
+
+		简介：
+		该函数返回一个指向一个保存当前进程的用户的名字的静态区的字符串。
+		失败返回NULL，设置errno。
 
 	func:setsid(2)
 		#include <unistd.h>
@@ -766,8 +814,22 @@ date06
 
 date07
 	func:signal(2)
+		#include <signal.h>	
+		typedef void (*sighandler_t)(int);
+		sighandler_t signal(int signum, sighandler_t handler);
+		
+		简介：
+		该函数的行为和unix的版本有关，所以尽量不要使用他，而是使用sigact-
+		ion代替他。
+
 
 	func:pause(2)
+		#include <unistd.h>
+		int pause(void);
+
+		简介：
+		该函数会等待有信号被传输过来或者是进程结束，不然会一直sleep等待。
+		如果返回，返回直是-1,errno会被设置成EINTR。
 
 	func:sigsuspend(2)
 
@@ -824,10 +886,64 @@ date09
 	
 	func:strstr(3)
 
+	func:semget()
+
+	func:semop()
+
+	func:semctl()
+
+	func:shmget()
+
+	func:shmop()
+
+	func:shmctl()
+
+	func:mmap()
+
 date10
 	man 7 prhreads
 
 	func:pthread_create(3)
+
+	func:othread_self()
+
+	func:pthread_equal()
+
+	func:pthread_exit(3)
+
+	func:pthread_join(3)
+
+	func:pthread_cleanup_push()
+
+	func:pthread_cleanup_pop()
+
+	func:pthread_cancle()
+
+	type:pthread_mutex_t
+
+	func:pthread_mutex_init()
+
+	func:pthread_mutex_lock()
+
+	func:pthread_mutex_unlock()
+
+	func:pthread_mutex_trylock()
+
+	func:pthread_mutex_destroy()
+
+	type:pthread_cond_t
+
+	func:pthread_cond_init()
+
+	func:pthread_cond_wait()
+
+	func:pthread_cond_signal()
+
+	func:pthread_cond_broadcast()
+
+	func:pthread_cond_destroy()
+
+
 
 	
 
