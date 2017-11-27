@@ -830,31 +830,121 @@ date07
 		简介：
 		该函数会等待有信号被传输过来或者是进程结束，不然会一直sleep等待。
 		如果返回，返回直是-1,errno会被设置成EINTR。
-
-	func:sigsuspend(2)
-
+			
 	func:kill(2)
+		#include <sys/types.h>
+		#include <signal.h>
+		int kill(pid_t pid, int sig);
+
+		简介：
+		向进程pid发送信号sig，成功返回0,失败返回-1,errno被设置。pid :>0
+		向pid进程发送送信号， =0向该进程同组的所有进程发送， =-1向除了一
+		号进程外所有被允许的进程发送，<-1向进程组id为-pid的进程组发送。
+
 
 	func:raise(2)
+		#include <signal.h>	
+		int raise(int sig);
+
+		简介：
+		该函数向当前的进程或者线程发送一个信号sig，如果该信号有行为函数
+		raise需要等行为函数返回后才放回。成功返回0,失败返回一个非0的数。
 
 	func:alarm(2)
+		#include <unistd.h>
+		unsigned int alarm(unsigned int seconds);
+
+		简介：
+		在当前进程中seconds后向本进程发送一个SIGALRM信号，该函数最后一次
+		的调用会使之前的调用变的无效。返回直是上一次的定时还剩多少时间到
+		时，如果是第一次调用返回直是0.
 
 date08
 	func:sigemptyset(3)
+		#include <signal.h>
+		int sigemptyset(sigset_t *set);
+
+		简介：
+		将信号集*set的所有信号清空，即该信号集中不包含任何信号，成功返回
+		0,失败返回-1,设置errno。
+
 
 	func:sigfillset(3)
+		#include <signal.h>
+		int sigfillset(sigset_t *set);
+
+		简介：
+		将所有的信号填入信号集*set中，成功返回0,失败返回-1,设置errno。
 
 	func:sigaddset(3)
+		#include <signal.h>
+		int sigaddset(sigset_t *set, int signum);
+
+		简介：
+		将信号signum，添加到信号集*set中，成功返回0,失败返回-1，设置errno
 
 	func:sigdelset(3)
+		#include <signal.h>
+		int sigdelset(sigset_t *set, int signum);
+
+		简介：
+		将信号signum从信号集*set中剖出，成功返回0,失败返回-1,设置errno。
 
 	func:sigismember(3)
+		#include <signal.h>
+		int sigismember(const sigset_t *set, int signum);
 
-	func:sigprocmask(3)
+		简介：
+		判断信号signum是否在信号集*set中，是则返回1,不是返回0,失败返回
+		-1,设置errno。
+
+	func:sigprocmask(2)
+		#include <signal.h>
+		int sigprocmask(int how,const sigset_t *set,sigeset_t *olds);
+
+		简介：
+		每一个进程都有一个信号屏蔽字集，该集中有哪些信号，当这些信号向该
+		进程发送时就会被屏蔽。该函数的作用是，将*set中的信号向屏蔽字集中
+		添加、抛出、重设置,同时将就的屏蔽字集信息存储到*olds中。至于是何
+		种操作，决定于how可选的宏有SIG_BLOCK\SIG_UNBLOCK\SIG_SETMASK。分
+		别是添加、抛出、重设置。函数成功返回0,失败返回-1,设置errno。
 
 	func:sigsuspend(3)
+		#include <signal.h>
+		int sigsuspend(const sigset_t *mask);
+
+		简介：
+		该函数的作用是暂时将当前进程的信号屏蔽集使用*mask替换，然后等待
+		直到有其他未被屏蔽的信号执行万行为函数后，该函数才返回，并且回复
+		原来的信号屁股比集。该函数对SIGKILL SIGSTOP信号效。返回值总是-1,
+		设置errno，正常返回EINTR.
 
 	func:sigaction(2)
+		#include <signal.h>
+		int sigaction(int signum, const struct sigaction *act,
+						struct sigaction *oldact);
+		struct sigaction{
+			void (*sa_handler)(int);
+			void (*sa_sigaction)(int,siginfo_t *, void *);
+			sigset_t sa_mask;
+			int sa_flags;
+			void (*sa_restorer)(void);
+		}
+
+		简介：
+		该函数的作用是注册信号signum的新的行为为 *act，旧的行为存储在
+		*odlact中。该函数对信号SIGKILL SIGSTOP无效。
+
+		参数：
+		struct sigaction——
+		sa_handler和sa_sigaction二者只能选其一个，是具体的信号的行为函数
+		,也可以使用宏SIG_DFL、SIG_IGN代表使用用默认行为或被忽视。参数sa-
+		_flags如果使用宏SA_SIGINFO代表使用sa_sigaction指向的行为函数，否
+		则默认使用sa_handler指向的行为函数。最后一个成员sa_restorer不使用。
+		
+		
+
+
 		SIG_NOCLDWAIT
 	
 	func:setitimer(2)
@@ -943,6 +1033,22 @@ date10
 
 	func:pthread_cond_destroy()
 
+date11
+	func:unlocked_stdio(3)
+
+	func:pthread_cleanup_push(3)
+
+	func:pthread_cleanup_pop(3)
+
+	func:pthread_cancel(3)
+
+	func:pthread_setcancelstate(3)
+
+	func:pthread_testcancel(3)
+
+	func:pthread_exit(3)
+
+	key :man 7 pthreads
 
 
 	
