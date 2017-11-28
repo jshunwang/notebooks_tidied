@@ -1062,8 +1062,30 @@ date11
 	func:sigwait(3)
 
 	func:pthread_kill(3)
+		#include <signal.h>
+		int pthread_kill(pthread_t thread, int sig);
+		compile and link with -pthread
+
+		简介：
+		函数的作用是在同一个进程内向指定的线程thread发送信号sig，函数成功
+		返回0,失败返回errno。
 
 	func:fcntl(2)
+		#include <nistd.h>
+		#include <fcntl.h>
+		
+		int fcntl(int fd, int cmd, ... /* arg */);
+
+		简介：
+		当我们用open打开一个文件时，会指定一些打开模式，比如非阻塞，可读
+		写等，那如果已经打开了文件怎么修改这些属性呢？就是用fcntl这个函数
+		去写改。第一个参数指定的是文件描述符号，cmd是操作选项，不同的选项
+		功能不同，而且选项可能带参数也可能不带参数。有一个常用的选项:
+		F_SETFL 后面可以根的参数有O_RDONLY, O_WRONLY, O_RDWR. O_CREAT, 
+		O_EXCL, O_NOCTTY, O_TRUNC. O_APPEND,  O_ASYNC, O_DIRECT,  
+		O_NOATIME,  and O_NONBLOCK .使用该选项时，函数成功返回0,失败返回
+		-1,设置errno。
+
 
 date12
 	^func:select(2)
@@ -1088,17 +1110,67 @@ date12
 
 		简介：
 		这个函数也是在timeout(us)时间内等待存储在fds内的nfds个文件描述符
+		所描述的文件达到fds.events时返回，并且将返回状态存储在fds.revents
+		中。也就是说fds指向的是一个数组，数组成员是struct pollfd类型，其
+		成员有文件描述符号fd，等待事件events，回添的响应事件状态revents，
+		这些事件的状态使用红定义的位图描述的。timeout内如果有等待事件发生
+		函数返回这些事件的数量，如果没有事件发生又超出timeout返回0,出错返
+		回-1,设置errno。
+	
 
 
 
 	func:epoll(2)
 		epoll_create(2);
+		#include <sys/epoll.h>
+		int epoll_create(int size);
+
+		简介：
+		调用该函数时会创建一个epoll实例，size是期望的实例文件描述符，在新
+		版的内核中这个参数不用指定了，只需要大于0即可。函数成功返回实例的
+		文件描述符号，失败返回-1,设置errno。
+
 		epoll_ctl(2)
+		#include <sys/epoll.h>	
+		int epoll_tcl(int epfd, int op, int fd,strut epoll_event *event);
+
+		typedef union epoll_data{
+			void *ptr;
+			int fd;
+			uint32_t u32;
+			uint64_t u64;
+		} epoll_data_t;
+		
+		struct epoll_event{
+			uint32_t events;
+			epoll_data_t data;
+		}
+		
+		简介：
+		这个函数是这样使用的，将所有需要监测的文件的fd和监测事件event都存
+		放到实例epfd中，当然可以通过op，对epfd中的文件进行添加、删除、修
+		改event事件。而event的结构体中不仅有一个事件events成员，还有一个
+		data成员，data成员是一个联合体，一般只是用来记录fd，也就是说该事
+		件对应的哪个文件。函数成功返回0,失败返回-1,设置errno。
+
+
 		epoll_wait(2)
+		#include <sys/epoll.h>
+		int epoll_wait(int epfd, struct epoll_event *events,
+						int maxevents, int timeout);
+		
+		简介：
+		这个函数的作用是在timeout时间内等待已经加入epfd中的文件发生max-
+		events个events事件然后返回发生events事件的个数。而且具体发生的哪
+		种事件和该事件对应的data成员也会回添到events中。函数超时返回0,失
+		败返回-1,设置errno。
 
-	man 7 socket
 
-	man 7 ip
+	theo:socket
+		man 7 socket
+
+	theo:ip
+		man 7 ip
 
 
 
