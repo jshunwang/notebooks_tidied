@@ -940,7 +940,8 @@ date08
 		sa_handler和sa_sigaction二者只能选其一个，是具体的信号的行为函数
 		,也可以使用宏SIG_DFL、SIG_IGN代表使用用默认行为或被忽视。参数sa-
 		_flags如果使用宏SA_SIGINFO代表使用sa_sigaction指向的行为函数，否
-		则默认使用sa_handler指向的行为函数。最后一个成员sa_restorer不使用。
+		则默认使用sa_handler指向的行为函数。最后一个成员sa_restorer不使用
+		。
 		
 		
 
@@ -1063,6 +1064,41 @@ date11
 	func:pthread_kill(3)
 
 	func:fcntl(2)
+
+date12
+	^func:select(2)
+		#include <sys/select.h>
+		int select(int nfds, fd_set *readfds, fd_set *writefds,
+					fd_set *exceptfds, struct timeval *timeout);
+
+		简介：
+		这个函数的作用是，监视readfds，writefds，exceptfds中文件描述符，
+		产看其是否发生了可读，可写，异常状态的发生，如果不发生，则函数会
+		在timeout时间内阻塞，如果时间过了，函数回以超时的状态返回。nfds的
+		直应该是那三个文件描述符集中的最大直的文件描述符数加1的直。这个直
+		是函数内部使用的，为的是指定文件描述符号的最大的个数，目前实际使
+		用，发现把这个数字再写的大一些也可以。当函数返回时三个文件描述符
+		号集会重新填入那些文件发生改变的文件描述符号。函数的返回直是发生
+		改变的文件的文件描述符号的个数。
+
+		
+	^func:poll(2)
+		#include <poll.h>
+		int poll(struct pollfd *fds, nfds_t nfds, int timeout);
+
+		简介：
+		这个函数也是在timeout(us)时间内等待存储在fds内的nfds个文件描述符
+
+
+
+	func:epoll(2)
+		epoll_create(2);
+		epoll_ctl(2)
+		epoll_wait(2)
+
+	man 7 socket
+
+	man 7 ip
 
 
 
