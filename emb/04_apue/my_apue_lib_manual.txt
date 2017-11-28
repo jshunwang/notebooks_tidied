@@ -1036,10 +1036,6 @@ date10
 date11
 	func:unlocked_stdio(3)
 
-	func:pthread_cleanup_push(3)
-
-	func:pthread_cleanup_pop(3)
-
 	func:pthread_cancel(3)
 
 	func:pthread_setcancelstate(3)
@@ -1049,6 +1045,25 @@ date11
 	func:pthread_exit(3)
 
 	key :man 7 pthreads
+
+	func:pthread_detach(3)
+
+	func:pthread_attr_init(3);
+
+	func:pthread_attr_setdetachstate(3)
+
+	func:pthread_attr_destroy(3)
+
+	func:pthread_mutex_trylock()
+
+	func:pthread_sigmask(3)
+
+	func:sigwait(3)
+
+	func:pthread_kill(3)
+
+	func:fcntl(2)
+
 
 
 	
