@@ -1054,8 +1054,26 @@ date11
 	func:pthread_attr_setdetachstate(3)
 
 	func:pthread_attr_destroy(3)
+		#include <pthread.h>
+		int pthread_attr_destroy(pthread_attr_t *attr);
+		compile and link with -pthread
+		
+		简介：
+
 
 	func:pthread_sigmask(3)
+		#include <signal.h>
+		int pthread_sigmask(int how, const sigset_t *set,
+				sigset_t *oldset);
+		compile and link with -pthread
+		
+		简介：
+		该函数的作用与sigprocmask的作用是一样的，不同的是该函数作用的是线
+		程，也就是说每个线程也有一个信号屏蔽字集，将新的信号集set中的信号
+		添加、移除、设置(至于是哪种操作决定于how)成信号屏蔽集中，旧的信号
+		屏蔽集存储到oldset中，set为NULL，则当前的信号屏蔽集不变，只是存储
+		到oldset中。成功返回0,失败返回-1.
+
 
 	func:sigwait(3)
 		#include <signal.h>
@@ -1176,6 +1194,148 @@ date12
 
 	theo:ip
 		man 7 ip
+		ip的地址类型
+
+date13
+	theo:udp
+		man 7 udp
+	
+	func:socket(2)
+		#include <sys/types.h>	
+		#include <sys/socket.h>
+		int socket(int domain, int type, int protocol);
+
+		简介：
+		socket的作用是创建一个套接字文件，可以使用这个文件来完成不同主机
+		或者同一主机下的不同进程之间的通信。完成不同主机之间的进程的通信
+		可以使用各种通信协议。对这些协议进行分类就形成了不同的通信协议族
+		，domain表述使用哪一个通信协议族，protocol指定了使用这个通信协议
+		族中的那个协议，而type指定的是你使用的通信协议的传输层使用哪种形
+		式传输数据。这些协议族和协议很多，选择起来很复杂，不过万幸的是目
+		前只需要掌握一种，即TCP/IP.
+
+		参数：
+		常用的参数组合：
+		（1）domain——AF_INET,type——SOCK_STREAM/SOCK_DGRAM,protocol——0
+			这种组合的意思是使用IPV4协议族，这个协议族巧了只有这一个协议
+			所以protocol写0，表示使用默认的就可以了。而传输层的传输方式
+			有两种，分别是流式传输和数据报传输。
+
+		返回直：
+		该函数成功返回的是一个新建的套接字文件的文件描述符，失败返回-1,
+		设置errno.
+
+	func:bind(2)
+		#include <sys/types.h>
+		#include <sys/socket.h>
+		int bind(int sockfd, const struct sockaddr *addr,\
+					socklen_t addrlen);
+
+		简介：
+		该函数的作用是将套接字文件和addr中指定的本地的ip地址绑定。函数成
+		功返回0,失败返回-1。
+
+		参数：
+		表示ip地址的类型是一个类似以下结构的结构体，addrlen代表的这个结
+		构体的实际的长度，因为这个结构体实际可能更长，比如直接用struct-
+		sockaddr_in.
+		struct sockaddr {
+			sa_family_t sa_family;
+			char        sa_data[14];
+		}
+
+
+	func:recvfrom(2)
+
+	func:sendto(2)
+
+	func:connect(2)
+
+	func:recv(2)
+
+	func:send(2)
+
+	func:htons(2)
+
+	func:inet_pton(3)
+
+	func:inet_ntop(3)
+
+	func:inet_aton(3)
+
+	func:inet_ntoa(3)
+
+	func:setsockopt(2)
+		#include <sys/types.h>
+		#include <sys/socket.h>
+		int setsockopt(int sockfd,int level,int optname\
+						const void *optval, socklen_t potlen);
+
+		简介：
+		这个函数的功能是设置套接字文件属性的选项，因为使用socket创建套接
+		字文件时是没有参数提供设置套接字文件的属性的。所以这个函数的重要
+		显而易见了。函数的第一个参数指定的是要设置的套接字文件的文件描述
+		符。后面的四个参数如何设置需要man 7 ip中查找，ip指的是ipv4,因为
+		一开始还没有ipv6,ip就是指的ipv4.这一节将的是ipv4的网络层协议是如
+		和运行的。同样的选项的名字optname很多，所以为他们划分了等级level
+		，optval 指向的结构是用来设置选项参数的，optname不同其设置的参数
+		也不同，那么代表参数的结构体也就不同，所以使用了一void*类型的指
+		针，当然这就必须要有一个量 potlen指定参数的结构体的大小是多少。
+
+		参数：
+		常用的参数组合：
+			对于IPV4协议来书level的选择是IPPROTO_IP.
+			如果man 7 socket 查到如果level选择SOL_SOCKET还有其他功能,如
+			过使用SOL_SOCKET除非特殊说明，那么该选项的参数是一个整数。
+		（1）(sockfd,IPPROTO_IP,IP_ADD_MEMBERSHIP,\
+					(void *)ip_mreqn,sizeof(struct ip_mreqn))
+		
+			ip_mreqn的结构如下：
+			struct ip_mreqn {
+				struct in_addr imr_multiaddr; /* IP multicast group
+												 address */
+				struct in_addr imr_address;   /* IP address of local
+												 interface */
+				int            imr_ifindex;   /* interface index */
+			};
+			
+			in_addr的结构如下：
+			struct in_addr {
+				uint32_t   s_addr; /* address in network byte order */
+			};
+			
+			额外的如果要表示一个ip地址应该用如下结构表示：
+			struct sockaddr_in {
+				sa_family_t    sin_family; /* address family: AF_INET */
+				in_port_t      sin_port; /*port in network byte order */
+				struct in_addr sin_addr; /* internet address */
+			};
+			
+			这个组合的含义是将本地的ip加入到一个组播中imr_multiaddr,imr-
+			address是本地的ip地址，imr——ifindex是本地的网卡的id号，本地
+			ip可用“0.0.0.0”表示，而网卡的id号可以通过if_nametoindex()通
+			过网卡的名字去得到。
+		
+		（2）(sockfd,SOL_SOCKET,SO_BROADCAT,\
+					int *anyone,sizeof(int))
+			
+			这组合的含义是将套接子文件sockfd设置成广播的形式，即使用该套
+			接子发送信息时，和主机同个路由器下的其他主机都能收到信息。
+
+
+
+
+
+
+	func:if_nametoindex()
+
+	func:listen()
+
+	func:accept()
+
+
+
+	
 
 
 

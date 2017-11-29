@@ -172,6 +172,13 @@ date12
 	B类型网络 网络号10开始
 	c类型网络 网络号110开始
 	D类型网络 网络号1110开始
-	
 
+date13
+	$ netstat -aun	//查看所有报式网络
+			  -atp	//查看所有流式网络
 
+	$ sudo ufw disable //关闭防火墙
+
+	$ sudo wireshark //抓网络包工具
+		ip.addr == 172.25.1.173&&ip.dst == 255.255.255.255
+		udp.port eq 3333
