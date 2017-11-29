@@ -1055,11 +1055,16 @@ date11
 
 	func:pthread_attr_destroy(3)
 
-	func:pthread_mutex_trylock()
-
 	func:pthread_sigmask(3)
 
 	func:sigwait(3)
+		#include <signal.h>
+		int sigwait(const sigset_t *set, int *sig);
+
+		简介：
+		这个函数的作用是暂停当前的线程直到有一个信号集set中的信号被传入，
+		函数会接受这个信号存储到sig中，并且将该信号从set中移除，然后解除
+		暂停。成功返回0,失败返回errno。`
 
 	func:pthread_kill(3)
 		#include <signal.h>
