@@ -1246,20 +1246,100 @@ date13
 
 
 	func:recvfrom(2)
+		#include <sys/types.h>
+		#include <sys/socket.h>
+		ssize_t recvfrom(int sockfd, void *buf,size_t len, int flags,
+						struct sockaddr *src_addr, socklen_t *addrlen);
+
+		简介：
+		这个函数的作用是将套接字文件sockfd接收到的消息缓存在长度len的buf
+		中，如果len小了，消息将会被截断。src_addr用来存储消息的源ip地址
+		，addrlen指定src_addr的大小，addrlen应该初始化如果实际的ip地址内
+		容比src_addr提供的addrlen长度大，地址信息会截断，但是实际的ip信
+		息长度将保存在addrlen中。flags是一些位或的操作选项，比如MSG_DONT
+		WAIT,就是使该函数进行不阻塞的操作。函数成功返回抓到的数据的的字
+		节数，失败返回-1,设置errno。
 
 	func:sendto(2)
+		#include <sys/types.h>
+		#include <sys.socket.h>
+		ssize_t sendto(int sockfd,const void *buf,size_t len,int flags
+				const struct sockaddr *dest_addr, socklen_t addrlen);
+
+		简介：
+		将buf中的len长度的信息发送到套接字文件sockfd，flags是一些特殊的
+		操作选项。这个套接字文件如果是一个流式的传输协议，后面的两个参数
+		src_addr addrlen没有用,写NULL。如果是数据报式的后面两个的参数带
+		表的是要传输向的目标IP。
 
 	func:connect(2)
+		#include <sys/types.h>
+		#include <sys/socket.h>
+		int connect(int sockfd, const struct sockaddr *addr\
+					socklen_t addrlen);
+		简介：
+		这个函数的作用是套接子文件sockfd和ip地址为addr，ip地址长度为addr-
+		len创建一个连接关系。如果sockfd是一个数据报的类型，那么只有addr中
+		指定的地址能够受到数据，如果sockfd是一个数据流的类型，那么将尝试
+		把该套接子文件和一个bind 地址addr的套接字文件建立连接。函数成功返
+		回0,失败返回-1,设置errno。
 
 	func:recv(2)
+		#include <sys/types.h>
+		#include <sys/socket.h>
+		ssize_t recv(int sockfd, void *buf, size_t len, int flags);
+		
+		简介：
+		这个函数的作用是读取套接字文件sockfd，试图读取len个字节，存到buf
+		中。flags是一些操作选项。比如该函数默认是阻塞的，可以通过该选项
+		设置成非阻塞的，没有特殊要求就写0.函数成功返回读取的字节的个数，
+		失败返回-1,设置errno。
 
 	func:send(2)
+		#include <sys/types.h>
+		#include <sys/socket.h>
+		ssize_t send(int sockfd, const void *buf, size_t len ,int flags);
 
-	func:htons(2)
+		简介：
+		这个函数的作用是写入套接字文件sockfd，试图写入len个字节，从buf
+		中。flags是一些操作选项。比如该函数默认是阻塞的，可以通过该选项
+		设置成非阻塞的，没有特殊要求就写0.函数成功返回写入的字节的个数，
+		失败返回-1,设置errno。
+
+	func:htons(3)
+		#include <arpa/inet.h>
+		uint32_t htonl(uint32_t hostlong);
+		uint16_t htonl(uint16_t hostlong);
+		uint32_t ntohl(uint32_t netlong);
+		uint16_t ntohl(uint16_t netlong);
+
+		简介：
+		这几个函数的作用是，将本地字节序转换成网络字节序，或者将网络字节
+		序号转换成网路字节序，返回直是转换结果。之所以要转换是因为，不同
+		主机之间同一个数据类型所占用的字节个数不一样，数序也可能不一样。
+		所以上传前先有本地格式转化为网络字节序，下载时在由网路字节序号转
+		换为另一个机器的本地字节序号，这样才不会出错。
 
 	func:inet_pton(3)
+		#include <arpa/inet.h>
+		int inet_pton(int af, const char *src, void *dst);
+
+		简介：
+		这个函数的作用是将AF_INET或AF_INET6族的点分十进制ip地址src转换成
+		网络结构体格式的ip地址，并存储到dst中。af用于指定ip的地址族，只能
+		选择AF_INET或AF_INET6中的一个。函数成功返回1,如果src写的不合适返
+		回0,如果af指定的不合适返回-1.
 
 	func:inet_ntop(3)
+		#include <arpa/inet.h>
+		const char *inet_ntop(int af, const void *src,
+					char *dst, socklen_t size);
+		
+		简介：
+		这个函数的作用是和inet_pton类似，不同的是这个是将一个点分十进制的
+		地址src转换成一个af指定的网络结构体格式的ip地址，存储到dst中，si-
+		ze记录转换后的实际的长度，函数成功返回一个指向dst的指针，失败返回
+		null，设置errno。
 
 	func:inet_aton(3)
 
@@ -1322,18 +1402,99 @@ date13
 			这组合的含义是将套接子文件sockfd设置成广播的形式，即使用该套
 			接子发送信息时，和主机同个路由器下的其他主机都能收到信息。
 
+		（3）(sockfd,SOL_SOCKET,SO_REUSEADDR,\
+					int *anyone,sizeof(int))
+		  
+		（4）(sockfd,SOL_SOCKET,SO_REUSEPORT,\
+					int *anyone,sizeof(int))
 
 
 
 
 
-	func:if_nametoindex()
 
-	func:listen()
+	func:if_nametoindex(3)
+		#include <net/if.h>
+		unsigned int if_nametoindex(const char *ifname);
 
-	func:accept()
+		简介：
+		函数的作用是将网卡端口的名字ifname转换成代表该网卡端口的id，成功
+		返回该id，失败返回0,并设置errno。
+
+	func:listen(2)
+		#include <sys/types.h>
+		#include <sys/socket.h>
+		int listen(int sockfd, int backlog);			
+		
+		简介：
+		该函数使套接字文件sockfd处于linsten状态。就是将一个套接字文件切换
+		到被动连接状态，等待其他套接字文件的connect，只有被connect后才会
+		完成三次握手，而backlog是指定三次握手的过程中内核维护的两个队列的
+		总的长度。函数成功返回0,失败返回-1,设置errno。
+
+	func:accept(2)
+		#include <sys/types.h>
+		#include <sys/socket.h>
+		int accept(int sockfd,struct sockaddr *addr,socklen_t *addrlen);
+			
+		简介:
+		这个函数的作用是创建一个新的已经完成三次握手的专门用于通信的套接
+		字，并且返回会这个新的套接字的文件描述符，原来的套接字文件仍回到l
+		isten状态。这个新的套接字的另一端与谁通信，取决于sockfd，sockfd已
+		经帮绑定了本地的ip，经过listen已经和其他主机的套接字文件完成了co-
+		nnect。如果当前的内核队列中没有完成这三个动作的套接字，而sockfd选
+		向中也没有标记非阻塞，那么该函数会阻塞等待。如果标记了非阻塞，则
+		会返回一个特定的错误的宏定义。后面的两个参数用于充填，另一端连接
+		的套接字的ip，记得要初始化。
+
+date14
+	theo: man 7 unix
+	func:unlink(2)
+		#include <unistd.h>	
+		int unlink(const char *pathname);
+
+		简介：
+		函数的作用是删除pathname指定的我恶见系统中的文件。
+		如果这是一个文件唯一的硬连接，并且没有被打开，则会删除该文件，并
+		且该文件之前使用的空间被释放。
+		如果在是唯一的硬连接，但是被进程打开了，那么这个文件会在进程结束
+		关闭其文件描述符号后删除
+		如果这是一个符号连接，删除的是这个符号
+		如果这是一个套接字、有名管道、设备文件，删除的只是这个文件的名字
+		但是打开这个文件的进程还是能够使用他
+		成功返回0,失败返回-1,设置errno。
 
 
+	func:rmdir(2)
+		#include <unistd.h>
+		int rmdir(const char *pathname);
+
+		简介：
+		删除一必须是空的路径文件，成功返回0,失败返回-1,设置errno
+
+	func:remove(3)
+		#include <stdio.h>
+		int remove(const char *pathname);
+
+		简介：
+		如果pathname是一个文件，这个函数就相当于使用unlink（2）。如果pat-
+		hname是一个路径，这个函数相当于使用remove。
+
+	func:socketpair(2)
+		#include <sys/types.h>
+		#include <sys/socket.h>
+		int socketpair(int domain,int type,int protocol,int sv[2]);
+
+		简介：
+		这个函数能生成两个套接字文件，新生成的套接字文件的文件描述符号存
+		储在sv中。domain、type、protocol分别指定了该套接子文件的协议族、
+		传输曾协议、网际层协议。一般的将这三个参数配置为AF_UNIX、SOCK_DG-
+		RAM,0代表的是本地，数据报（本地的数据包传输是可靠的和使用数据流传
+		输效果一样），默认设置。这种配置下的用法和管道文件类似，不同的是
+		两个文件描述符号谁都可以作读端或写端，没有规定死。
+		
+		
+	
 
 	
 

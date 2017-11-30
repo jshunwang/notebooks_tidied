@@ -182,3 +182,7 @@ date13
 	$ sudo wireshark //抓网络包工具
 		ip.addr == 172.25.1.173&&ip.dst == 255.255.255.255
 		udp.port eq 3333
+
+date14
+	sigaction()的SA_NOCLDWAIT
+	不等带子进程
