@@ -666,6 +666,9 @@ date06
 		所有都是成功的返回直是command执行的程序的返回状态。这个状态的信息
 		要用waitpid（）中的宏函数去查看。
 
+		SIGCHLD--->block
+		SIGINI SIGQUIT --->
+
 	fun:acct(2)
 		#include <unistd.h>
 		int acct(const char *filename);
@@ -949,16 +952,71 @@ date08
 		SIG_NOCLDWAIT
 	
 	func:setitimer(2)
+		#include <sys/time.h>
+		int setitimer(int which, construct itimerval *new_value,
+						struct itimerval *old_value);
+		
+		简介：
+		系统为每一个进程分配了三个定时器。该函数就是为当前进程设置定时器
+		，当计时结束时，计时其会发送一个信号给当前的进程，然后定时器会根
+		据指定的计时周期进行下一次计时。
+
+		参数：
+		which指定的是计时方式共三种，方式不同计时结束时的发送的信号不同。
+			ITIMER_REAL——以系统的真是时间计时；
+			ITIMER_VIRTUAL——从该进程开始事开始计时；
+			ITIMER_PROF——记录的是该进程在用户态和内核态总的时间。
+
+		new_value是将要设置的新的直，old_value保存之前设置的直。
+
+		设置时间的结构体成员如下：
+			
+			struct itimerval {
+				struct timeval it_interval; 
+				/* Interval for periodic timer */
+				struct timeval it_value;    
+				/* Time until next expiration */
+			};
+	
+			struct timeval {
+				time_t      tv_sec;         /* seconds */
+				suseconds_t tv_usec;        /* microseconds */
+			};
+
+
 		
 	func:sleep(3)
-	不要同时出现alarm()hesetitimer()
+		#include <unistd.h>
+		unsigned int sleep(unsigned int seconds);
 
-	func:system(3)
-		SIGCHLD--->block
-		SIGINI SIGQUIT --->
+		简介：
+		函数的作用是使当前的线程进入睡眠状态seconds秒，知道时间到了或者
+		被一个不能忽视的信号唤醒比如SIGALRM。该函数返回的直是距离预设直
+		还剩多少秒，当然如果是计时时间到了当然返回的是0.
+
+
+		不要同时出现alarm()hesetitimer()
+
 	func:sigqueue(3)
+		#include <signal.h>
+		int sigqueue(pid_t pid, int sig, const union sigval value);
+
+		简介：
+		这个函数的作用是将一个信号sig排队发送到进程pid，好像是专门操实时
+		信号的，因为只有实时信号才排队。权限设置请参考kill（2）,sig为0时
+		可以检测pid进程是否存在。value可以做为一个跟随信号传递到那个具有
+		两个参数的信号行为函数所要传递的那个参数。函数成功返回0,失败返回
+		-1,设置errno。
 
 	fucn:raise(3)
+		#include <signal>
+		int raise(int sig);
+
+		简介：
+		该函数的作用是向当前的进程或者是线程发送信号sig，如果这是一个单线
+		程程序等价于"kill(getpid(),sig)",如果当前是一个多线程等价于"pthr-
+		ead_kill(pthread_self(), sig)"。函数在信号的行为函数返回后才返回
+		。函数成功返回0,失败返回一个非0的数。
 
 date09
 	func:pipe() pipe2()
