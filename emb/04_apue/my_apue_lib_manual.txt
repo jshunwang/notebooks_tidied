@@ -940,16 +940,16 @@ date08
 		sa_handler和sa_sigaction二者只能选其一个，是具体的信号的行为函数
 		,也可以使用宏SIG_DFL、SIG_IGN代表使用用默认行为或被忽视。参数sa-
 		_flags如果使用宏SA_SIGINFO代表使用sa_sigaction指向的行为函数，否
-		则默认使用sa_handler指向的行为函数。最后一个成员sa_restorer不使用
-		。
-		
-		
-
+		则默认使用sa_handler指向的行为函数。最后一个成员sa_restorer不使
+		用	。参数sa_mask是一个信号集，当调用行为函数时，当前线程sa_mask
+		中的信号将会被屏蔽，当行为函数返回时，再恢复。目的是为了达到，在
+		执行函数的运行期间要屏蔽sa_mask中的信号。函数成功返回0,失败返回
+		-1,设置errno。
 
 		SIG_NOCLDWAIT
 	
 	func:setitimer(2)
-
+		
 	func:sleep(3)
 	不要同时出现alarm()hesetitimer()
 
@@ -1341,10 +1341,22 @@ date13
 		ze记录转换后的实际的长度，函数成功返回一个指向dst的指针，失败返回
 		null，设置errno。
 
-	func:inet_aton(3)
+	func:inet_aton(3) inet_ntoa()
+		#include <sys/socket.h>
+		#include <netinet/in.h>
+		#include <arpa/inet.h>
+		int inet_aton(const char *cp,struct in_addr *inp);
+		char *inet_ntoa(struct in_addr in);
 
-	func:inet_ntoa(3)
+		简介：
+		inet_aton(3)这个函数的作用是将一个IPV4的点分十进制的ip地址cp转换
+		成网络字节序格式，并存储到inp中。cp不合适返回0,合适返回一个非0的i
+		数。
+		inet_ntoa(3)和inet_aton的转换作用相反。将网络字节序的ip地址in转换
+		成点分十进制地址的字符串，并返回该字符串的指针。字符串存在静态区
+		中。
 
+	
 	func:setsockopt(2)
 		#include <sys/types.h>
 		#include <sys/socket.h>
