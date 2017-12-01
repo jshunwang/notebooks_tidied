@@ -1019,7 +1019,15 @@ date08
 		。函数成功返回0,失败返回一个非0的数。
 
 date09
-	func:pipe() pipe2()
+	func:pipe(2) pipe2()
+		#include pipe()
+		int pipe(int pipefd[2]);
+
+		简介：
+		创建一个管道文件，并且生成代表这个管道文件两端的两个文件描述符，
+		存储在数组pipefd中，pipefd[0]端只能读， pipefd[1]只能写。由于fork
+		时文件描述符是也要复制的，所以可以利用该文件进行父子进程间的通信
+		。函数成功返回0,失败返回-1,设置errno。
 	
 	func:mkfifo(3)
 
