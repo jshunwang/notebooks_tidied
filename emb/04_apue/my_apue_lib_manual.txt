@@ -1030,10 +1030,86 @@ date09
 		。函数成功返回0,失败返回-1,设置errno。
 	
 	func:mkfifo(3)
+		#include <sys/types.h>
+		#include <sys/stat.h>
+		int mkfifo(const char *pathname ,mode_t mode);
 
-	func:msgget(3)
+		简介：
+		这个函数的作用是在当前文件系统内建立有个“有名”管道文件。和pipe的
+		不同是，pipe的文件在文件系统中是找不到的，使用pipe只能再亲属进程
+		间进行通信。而fifo文件是真是存在在当前的文件系统上的，所以mkfifo
+		的时候pathname必须是一个原来文件系统上没有的pathname。如果已经有
+		了，再次创建时将会报错，所以使用这个函数要在项目结束时执行remove
+		（）函数。此外使用这个数创建的这个文件只要是能访问这个文件系统的
+		进程就能通过这个有名字的管道文件进行通信。此外使用该文件通信时，
+		信息的交换是通过内核进行的，所以该有名管道的文件的大小一直为0。注
+		，使用该文件进行通信时默认情况下是阻塞的。有进程读，没有进程写，
+		会阻塞，反之亦然。使用该文件进行进程间通信时，和操作普通文件一样
+		，可以在open时添加非阻塞选项，当然应该注意多个进行利用这个有名的
+		管道文件通信时，要注意原子操作，即枷锁。
+
+		
 
 	func:ftok(3)
+		#include <sys/types.h>
+		#include <sys/ipc.h>
+		key_t ftok(const char *pathname ,int proj_id);
+
+		简介：
+		这个函数的作用是生成一个system v的ipc用的key。system v是一个标准i
+		的名字，再这个标准中介绍了三种同一个主机进程间通信(IPC)的方法。这
+		三个方法都是通过一个依靠本主机文件系统特有的唯一的一个实体，完成
+		进程间的通信（因为这个实体依靠文件系统而唯一，而这台主机上的进程
+		又都能够访问这个主体。虽然这个主题和文件系统挂钩，但是维护他的是
+		内核）。key的作用相当于一个标识符号（long int）用来表示这个唯一的
+		实体。这个key是提取了一个已经存在的可进入的文件pathname，和一个只
+		取低八位的非0的整数proj_id的信息组合的，这样组合的目的就是为了避
+		免不同的path-name产生相同的key。函数成功返回key的直，失败返回-1,
+		设置errno。
+
+
+	func:msgget(2)
+		#include <sys/types.h>
+		#include <sys/ipc.h>
+		#include <sys/msg.h>
+		int msgget(ket_t key, int msgflg);
+
+		简介：
+		这个函数的作用是创建或者是打开一个消息队列实例，成功返回该实例的
+		标识符号，失败返回-1,设置哦errno。
+		
+		参数：
+		如果key取IPC_PRIVATE,msgflg取0,函数将会创建一个当前主机中新的一个
+		消息队列实例。或者使用一个指定的key且msgfl取IPC_CREAT会先从系统中
+		找是否已经建立了关于该key的消息队列实体，如果没有则会创建一个。一
+		创建成功，将会有两个数据结构生成，用来描述这个消息队列。
+
+		struct msqid_ds {
+			struct ipc_perm msg_perm;     /* Ownership and permissions */
+			time_t          msg_stime;    /* Time of last msgsnd(2) */
+			time_t          msg_rtime;    /* Time of last msgrcv(2) */
+			time_t          msg_ctime;    /* Time of last change */
+			unsigned long   __msg_cbytes; /* Current number of bytes in
+											 queue (nonstandard) */
+			msgqnum_t       msg_qnum;     /* Current number of messages
+											 in queue */
+			msglen_t        msg_qbytes;   /* Maximum number of bytes
+											 allowed in queue */
+			pid_t           msg_lspid;    /* PID of last msgsnd(2) */
+			pid_t           msg_lrpid;    /* PID of last msgrcv(2) */
+		};
+
+		struct ipc_perm {
+			key_t          __key;       /* Key supplied to msgget(2) */
+			uid_t          uid;         /* Effective UID of owner */
+			gid_t          gid;         /* Effective GID of owner */
+			uid_t          cuid;        /* Effective UID of creator */
+			gid_t          cgid;        /* Effective GID of creator */
+			unsigned short mode;        /* Permissions */
+			unsigned short __seq;       /* Sequence number */
+		};
+		
+		
 
 	func:msgsnd(3)
 
@@ -1570,7 +1646,9 @@ date14
 		RAM,0代表的是本地，数据报（本地的数据包传输是可靠的和使用数据流传
 		输效果一样），默认设置。这种配置下的用法和管道文件类似，不同的是
 		两个文件描述符号谁都可以作读端或写端，没有规定死。
-		
+
+date17
+	func:strdup
 		
 	
 
