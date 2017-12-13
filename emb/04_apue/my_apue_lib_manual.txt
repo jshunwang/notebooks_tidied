@@ -631,7 +631,6 @@ date06
 		#include <sys/tyepes.h
 		#include <sys/wait.h>
 		pid_t waitpid(pid_t pid,int *status, int options);
-
 		简介：
 		该函数会等待pid_t指定的子进程的状态（被option指定的状态）发生改变
 		时才会返回，不然会一直等待。*status用于存放状态改变的信息。函数反
@@ -1111,17 +1110,75 @@ date09
 		
 		
 
-	func:msgsnd(3)
+	func:msgsnd(3) msgrcv(3)
+		#include <sys/types.h>	
+		#include <sys/ipc.h>
+		#include <sys/msg.h>
+		int msgsnd(int msqid, const void *msgp,size_t msgsz, int msgflg);
+		ssize_t msgrcv(int msqid, void *msgp, size_t msgsz, long msgtyp\
+				,int msgflg);
 
-	func:msgrcv(3)
+		简介：
+		一个由内核维护的消息队列实例是由一个msgid_st数据结构的头，和一个
+		msgbuf数据结构的组成的队列组成的。msgid_st用于描述这个队列的属性
+		一个msgbuf代表着一个消息，msgbuf的结构成员如下。
 
-	func:msgctl()
+		struct msgbuf {
+			long mtype;       /* message type, must be > 0 */
+			char mtext[1];    /* message data */
+		};
+
+		函数msgsnd试图从msgp指向的一个 buf中(通常是一个struct msgbuf的变
+		长结构体，第一个成员是类型，第二个代表消息数据段)复制消息到msqid
+		指向的消息队列中，msgsz代表这个消息的buf中的数据的长度，msgflg代
+		表一些特殊选项，比如该函数默认是阻塞的，使用IPC_NOWAIT使不阻塞。
+		函数成功返回0,失败返回-1,设置errno。
+		函数msgrcv的用法和msgsnd类似，不过作用相反是从msqid中读取一个由
+		msgtype指定范围（>0\==0\<0有不同的含义）消息存储到msgp中，msgsz
+		代表消息数据段的大小，msgflg代表一些特殊选项，函数成功返回的是收
+		到的消息的数据段的字节的个数，失败返回-1,设置errno。
+
+
+	func:msgctl(2)
+		#include <sys/types.h>
+		#include <sys/ipc.h>
+		#include <sys/msg.h>
+		int msgctl(int msqid, int cmd, struct msqid_ds *buf);
+
+		简介：
+		这个函数的作用是对整个的消息对垒msqid进行一些操作，造作类型用cmd
+		指定，常用的操作类型有读取、设置、移除(IPC_STAT\IPC_SET\IPC_RMID)
+		如果读取，读取的内容存储在buf中；如果设置，将要设置的内容存储在
+		buf中；如果要删除buf是无效参数写NULL。对于这三种操作成功返回0,失
+		败返回-1,设置errno。
+
 	
 	func:strstr(3)
+		#inlcude <string.h>
+		char *strstr(const char *haystack, const char *needle);
 
-	func:semget()
+		简介：
+		函数的作用是从字符串haystack中寻找neddle字符串，不包含'\0'，找到
+		了返回第一次找到的的needle开始的地址，找不到返回NULL。
+		
+	func:semget(2)
+		#include <sys/types.h>
+		#include <sys/ipc.h>
+		#include <sys/sem.h>
+		int semget(key_t key, int nsems, int semflg);
+	
+		简介：
+		根据key创建或者获取一个由nsems信号量组成的信号量集，semflg代表特
+		殊选项，成功返回的是一个信号量结合的标识符。失败返回-1,设置errno
+		。用法和msgget类似，不再多说。
 
-	func:semop()
+	func:semop(2)
+		#include <sys/types.h>
+		#include <sys/ipc.h>
+		#include <sys/sem.h>
+		int semop(int semid, struct sembuf *sops, size_t nsops);
+
+
 
 	func:semctl()
 
