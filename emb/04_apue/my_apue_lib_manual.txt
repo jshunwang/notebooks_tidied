@@ -1178,19 +1178,156 @@ date09
 		#include <sys/sem.h>
 		int semop(int semid, struct sembuf *sops, size_t nsops);
 
+		简介：
+		该函数的作用是对存储在semid信号量集中的信号进行操作，操作指令存储
+		在一个sops指向的有nsops个成员struct sembuf类型的数组中。sembuf的
+		成员如下：			
+			unsigned short sem_num;  /* semaphore number in set from 0 */
+			short          sem_op;   /* semaphore operation */
+			short          sem_flg;  /* operation flags */
+		这三个成员的含义是这样的，所谓的信号量的集合，就是一个信号量组成
+		的数组，sem_num指定的是这个集合中某个信号量的下标。sem_op改变的是
+		信号量中的semval，成员。一般的用这个成员代表一个公共资源的是否可
+		用，比如说semval = 1，代表可用，semval=0,代表不可用。sem_op代表释
+		放或占有该资源，1代表释放，-1代表战友，0代表阻塞等待为0的情况直到
+		semval=0,当然semval不能小于0。sem_flg代表的特殊选项，可以是0\IPC-
+		_NOWAIT\SEM_UNDO,第三个参数的含义是如果当本进程结束是没有释放共享
+		的资源，即sem_op=1,会自动的释放该共享资源，以免形成僵局。
+		
+
+		在一个内核维护的一个信号量集合中，每一个信号量都是一个无名的结构
+		体，其成员如下：				
+			unsigned short  semval;   /* semaphore value */
+			unsigned short  semzcnt;  /*# process waiting for zero */
+			unsigned short  semncnt;  /*# process waiting for increase */
+			pid_t           sempid;   /*ID of process that did last op */
+
+		
+		函数成功返回0,失败返回-1,设置errno。
 
 
-	func:semctl()
+	func:semctl(2)
+		#include <sys/types.h>
+		#include <sys/ipc.h>
+		#include <sys/sem.h>
+		int semctl(int semid, int semnum, int cmd, ...);
 
-	func:shmget()
+		简介：
+		这个函数的作用是操作一个semid指定的信号量集合或者是这个信号量集合
+		中的下标为semnum的信号量（从0开始）。这个函数可能有三个或四个参数
+		，因为不同的操作所需要的参数数量不同，第四个参数的类型也不同，所
+		以第四个参数是一个联合体，结构如下，每次只是使用其中的一种。
+		union semun {
+			int              val;    /* Value for SETVAL */
+			struct semid_ds *buf;    /*Buffer for IPC_STAT,IPC_SET */
+			unsigned short  *array;  /* Array for GETALL, SETALL */
+			struct seminfo  *__buf;  /* Buffer for IPC_INFO
+											(Linux-specific) */
+		};
+		
+		The semid_ds data structure is defined in <sys/sem.h>  as  fol‐
+		lows:
+		
+		struct semid_ds {
+			struct ipc_perm sem_perm;  /* Ownership and permissions */
+			time_t          sem_otime; /* Last semop time */
+			time_t          sem_ctime; /* Last change time */
+			unsigned long   sem_nsems; /* No. of semaphores in set */
+		};
+		
+		The  ipc_perm  structure is defined as follows (the highlighted
+				fields are settable using IPC_SET):
+		
+			struct ipc_perm {
+				key_t          __key; /* Key supplied to semget(2) */
+				uid_t          uid;   /* Effective UID of owner */
+				gid_t          gid;   /* Effective GID of owner */
+				uid_t          cuid;  /* Effective UID of creator */
+				gid_t          cgid;  /* Effective GID of creator */
+				unsigned short mode;  /* Permissions */
+				unsigned short __seq; /* Sequence number */
+		   };
 
-	func:shmop()
+	func:shmget(2)
+		#include <sys/ipc.h>
+		#include <sys/shm.h>
+		int shmget(key_t key, size_t size, int shmflg);
 
-	func:shmctl()
+		简介：
+		根据key创建大小size的共享内存区域或者是获取一个已存在的共享内存，
+		返回这个共享内存的表示符号。shmflg是特殊选项。
 
-	func:mmap()
 
-date10
+	func:shmop(2)
+		#include <sys/types.h>
+		#include <sys/shm.h>
+		void *shmat(int shmid, const void *shmaddr, int shmflg);	
+		int shmdt(const void *shmaddr);
+
+		简介：
+		shmat
+		这个函数的意思是试图将当前进程的shmaddr地址与内核中维护的shmid代
+		表的共享内存建立映射关系，shmflg是一些特殊的选项。一般shmaddr选择
+		NULL，这样内核会自动选择合适的地址。
+		shmdt
+		这个函数的作用与上面的相反，是解除当前进程中已经建立的映射关系的
+		一个共享内存的连接。
+
+
+	func:shmctl(2)
+		#include <sys/ipc.h>
+		#include <sys/shm.h>
+		int shmctl(int shmid, int cmd, struct shmid_ds *buf);
+		
+		简介：
+		这个函数的作用是对内核中已经存在的一个共享内存shmid，进行操作。操
+		作行为决定于cmd选择哪个宏。如果操作要赋值或者读取直则使用buf作为
+		该直的容器。这个buf的结构如下：
+
+		struct shmid_ds {
+			struct ipc_perm shm_perm;    /* Ownership and permissions */
+			size_t          shm_segsz;   /* Size of segment (bytes) */
+			time_t          shm_atime;   /* Last attach time */
+			time_t          shm_dtime;   /* Last detach time */
+			time_t          shm_ctime;   /* Last change time */
+			pid_t           shm_cpid;    /* PID of creator */
+			pid_t           shm_lpid;  /* PID oflast shmat(2)/shmdt(2) */
+			shmatt_t        shm_nattch;  /* No. of current attaches */
+			...
+		};
+
+		struct ipc_perm {
+			key_t          __key;    /* Key supplied to shmget(2) */
+			uid_t          uid;      /* Effective UID of owner */
+			gid_t          gid;      /* Effective GID of owner */
+			uid_t          cuid;     /* Effective UID of creator */
+			gid_t          cgid;     /* Effective GID of creator */
+			unsigned short mode;     /* Permissions + SHM_DEST and
+										SHM_LOCKED flags */
+			unsigned short __seq;    /* Sequence number */
+		};
+
+	func:mmap(2) munmap(2)
+		#include <sys/mman.h>
+		void *mmap(void *addr, size_t length, int prot, int flags\
+					int fd, off_t offset);
+		int munmap(void *addr, size_t length);
+		
+		简介：
+		mmap
+		该函数的作用是试图将addr指向的地址，length长度的当前进程的虚拟内
+		存，和fd指向的文件从offset处开始的length长度的内容建立映射关系，
+		prot指定了该本进程的映射空间的读写权限等，flags是一些特殊选项，比
+		如MAP_SHARED,可以使其他进程也能访问这个内存空间。一般addr使用NULL
+		让内核自动去分配。函数成功返回本进程映射空间的首地址。
+		
+		nunmap
+		和上面的函数作用相反，解除本进程被上面的函数映射过的空间。
+
+	
+
+date110
+
 	man 7 prhreads
 
 	func:pthread_create(3)
